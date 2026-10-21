@@ -27,10 +27,10 @@ const Body = () => {
   const generate = async (queryText: string) => {
     //1. append text message to UI (chat container) - appended in handle click
     //2. send textquery to LLM
-    const response = await callServer(queryText)
-    const result = response?.data?.response ;
+    const response = await callServer(queryText);
+    const result = response?.data?.response;
     //3. append response to UI (chat container)
-    setMessage((prev) => [...prev , {role : "assistant" , content : result}]) ;
+    setMessage((prev) => [...prev, { role: "assistant", content: result }]);
   };
 
   async function callServer(inputText: string) {
@@ -45,7 +45,7 @@ const Body = () => {
   }
 
   return (
-    <div className=" text-white bg-neutral-900 h-screen w-screen fixed overflow-x-hidden">
+    <div className=" text-white bg-neutral-900 h-screen w-screen fixed overflow-x-hidden [&::-webkit-scrollbar]:hidden">
       <div className="container p-3 bg-neutral-900 mx-auto my-20 max-w-3xl  pb-32  ">
         {/* this section will store message of the chatbot */}
 
@@ -58,8 +58,13 @@ const Body = () => {
               <h4> {m.content} </h4>
             </div>
           ) : (
-            <div key={i} className=" max-w-[90%] my-4 bg-gray-700 p-3 rounded-2xl">
-             <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+            <div
+              key={i}
+              className=" my-4 max-w-fit bg-gray-700 p-3 rounded-2xl"
+            >
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {m.content}
+              </ReactMarkdown>
             </div>
           ),
         )}
@@ -83,7 +88,7 @@ const Body = () => {
           />
           <div className="flex  justify-end">
             <button
-              className="bg-white font-bold text-black hover:bg-amber-300 p-3 rounded-2xl"
+              className="bg-white font-semibold text-black hover:bg-amber-300 px-3 py-1 rounded-2xl"
               onClick={handleClick}
             >
               {" "}
