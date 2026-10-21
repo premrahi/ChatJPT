@@ -3,7 +3,7 @@ import Body from "./components/Body";
 
 const App = () => {
   return (
-    <div  style={{background : "#360800"}}>
+    <div className="bg-neutral-900">
       <Body />
     </div>
   );
