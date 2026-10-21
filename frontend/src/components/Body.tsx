@@ -1,4 +1,7 @@
+import axios from "axios";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type Message = {
   role: "user" | "assistant";
@@ -15,18 +18,31 @@ const Body = () => {
     }
 
     const text = query.trim();
-    console.log(text);
 
     setMessage((prev) => [...prev, { role: "user", content: text }]);
     generate(text);
     setQuery("");
   }
 
-  const generate = (queryText: string) => {
-    //1. append text message to UI (chat container)
+  const generate = async (queryText: string) => {
+    //1. append text message to UI (chat container) - appended in handle click
     //2. send textquery to LLM
+    const response = await callServer(queryText)
+    const result = response?.data?.response ;
     //3. append response to UI (chat container)
+    setMessage((prev) => [...prev , {role : "assistant" , content : result}]) ;
   };
+
+  async function callServer(inputText: string) {
+    try {
+      const response = await axios.post("http://localhost:4000/chat/", {
+        message: inputText,
+      });
+      return response;
+    } catch (e) {
+      console.log("error :", e);
+    }
+  }
 
   return (
     <div className=" text-white bg-neutral-900 h-screen w-screen fixed overflow-x-hidden">
@@ -42,8 +58,8 @@ const Body = () => {
               <h4> {m.content} </h4>
             </div>
           ) : (
-            <div key={i} className=" max-w-fit my-4">
-              <h4>{m.content}</h4>
+            <div key={i} className=" max-w-[90%] my-4 bg-gray-700 p-3 rounded-2xl">
+             <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
             </div>
           ),
         )}
