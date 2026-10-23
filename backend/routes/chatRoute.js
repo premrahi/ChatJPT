@@ -4,10 +4,14 @@ import generate from "../assets/chatbot";
 const chatRouter = Router() ;
 
 chatRouter.post('/' , async(req , res) => {
-    const {message } = req.body ;
+    const {message , threadId } = req.body ;
 
-
-    const response = await generate(message) ;
+    if(!message || !threadId) {
+        res.status(400).json({message : "All fiends are required!"}) ;
+        return ;
+    }
+    
+    const response = await generate(message , threadId) ;
 
     console.log(response) ;
     res.json({success :"ok"  , response : response} ) ;

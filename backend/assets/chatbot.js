@@ -1,14 +1,16 @@
 import Groq from "groq-sdk";
 import "dotenv/config";
 import { tavily } from "@tavily/core";
+import NodeCache from "node-cache";
 
 const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY });
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-export default async function generate(userMessage) {
- 
+const myCache = new NodeCache({stdTTL : 60*60*24}); //24hours
 
-  const messages = [
+export default async function generate(userMessage , threadId) {
+ 
+  const baseMessages = [
     {
       role: "system",
       content: `you are Jarvis, a smart personal assistant who answers the asked questions. Be always polite
@@ -34,6 +36,7 @@ export default async function generate(userMessage) {
     },
   ];
 
+  const messages = myCache.get(threadId) ?? baseMessages ;
 
 
     messages.push({
@@ -41,8 +44,16 @@ export default async function generate(userMessage) {
       content: userMessage,
     });
 
-   
+   const MAX_RETRIES = 10 ;
+    let count = 0 ;
+
     while (true) {
+
+      if(count > MAX_RETRIES){
+        return "I Couldn't find the answer, please try again!"
+      }
+
+      count++ ;
       const completion = await groq.chat.completions.create({
         model: "openai/gpt-oss-120b",
         temperature: 0,
@@ -75,6 +86,8 @@ export default async function generate(userMessage) {
       const toolCalls = completion.choices[0].message.tool_calls;
 
       if (!toolCalls) {
+
+        myCache.set(threadId , messages) ;
         return completion.choices[0].message.content ;
       }
 
